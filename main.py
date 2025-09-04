@@ -28,4 +28,4 @@ if __name__ == "__main__":
     clusters = get_clustered_reviews(reviews, embs)
 
     # Output report
-    print(json.dumps(clusters, indent=4))
+    print(json.dumps(clusters, indent=4, ensure_ascii=False))

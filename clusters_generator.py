@@ -1,5 +1,6 @@
 from sklearn.cluster import DBSCAN
 from sklearn.metrics.pairwise import cosine_distances
+import random
 
 
 def get_clustered_reviews(reviews, embeddings):
@@ -13,4 +14,10 @@ def get_clustered_reviews(reviews, embeddings):
             continue
         clusters[int(label)] = clusters.get(int(label), []) + [review]
 
-    return clusters
+    report = []
+    for k, reviews in clusters.items():
+        random_reviews = random.sample(reviews, min(20, len(reviews)))
+        cluster_data = {"num_reviews": len(reviews), "random_reviews": random_reviews}
+        report.append(cluster_data)
+
+    return sorted(report, key=lambda x: x["num_reviews"], reverse=True)

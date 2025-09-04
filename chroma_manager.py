@@ -48,5 +48,5 @@ class ChromaManager:
 
 if __name__ == "__main__":
     chroma_manager = ChromaManager()
-    chroma_manager.save(text="Hello", metadata={"review": 1})
-    print(chroma_manager.get_all_docs_embs())
+    # chroma_manager.save(text="Hello", metadata={"review": 1})
+    print(len(chroma_manager.get_all_docs_embs()[0]))

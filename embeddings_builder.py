@@ -2,8 +2,6 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
-import chromadb
-from chromadb.utils import embedding_functions
 load_dotenv()
 
 
