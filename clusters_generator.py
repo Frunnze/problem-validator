@@ -1,9 +1,7 @@
 from sklearn.cluster import DBSCAN, KMeans
-from sklearn.metrics.pairwise import cosine_distances
 import random
 from sklearn.metrics import silhouette_score
 import numpy as np
-from hdbscan import HDBSCAN
 
 
 def get_report(reviews, labels):
@@ -27,10 +25,8 @@ def get_report(reviews, labels):
 
 
 def get_clustered_reviews(reviews, embeddings):
-    dist_matrix = cosine_distances(embeddings)
-    db = DBSCAN(eps=0.3, min_samples=20, metric="precomputed").fit(dist_matrix)
+    db = DBSCAN(eps=0.2, min_samples=20, metric="cosine").fit(embeddings)
     labels = db.labels_
-
     return get_report(reviews, labels)
 
 
@@ -53,16 +49,4 @@ def get_clustered_reviews_kmeans(reviews, embeddings):
     optimal_k = find_optimal_k(embeddings)
     kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
     labels = kmeans.fit_predict(embeddings)
-    return get_report(reviews, labels)
-
-
-def get_clustered_reviews_hdbscan(reviews, embeddings):
-    dist_matrix = cosine_distances(embeddings)
-    clusterer = HDBSCAN(
-        min_cluster_size=20,
-        metric='precomputed',
-        cluster_selection_method='eom'
-    )
-    labels = clusterer.fit_predict(dist_matrix)
-
     return get_report(reviews, labels)

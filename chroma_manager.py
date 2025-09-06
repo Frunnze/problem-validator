@@ -45,8 +45,19 @@ class ChromaManager:
         embeddings = results.get('embeddings', [])
         return texts, embeddings
 
+    def count_all(self):
+        try:
+            results = self.reviews_coll.get()
+            return len(results.get('documents', []))
+        except Exception as e:
+            print(f"Error counting reviews: {e}")
+            return 0
+
 
 if __name__ == "__main__":
     chroma_manager = ChromaManager()
     # chroma_manager.save(text="Hello", metadata={"review": 1})
-    print(len(chroma_manager.get_all_docs_embs()[0]))
+    
+    # Count all reviews using the new function
+    total_reviews = chroma_manager.count_all()
+    print(f"Total number of reviews: {total_reviews}")
