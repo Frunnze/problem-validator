@@ -5,13 +5,17 @@ import asyncio
 
 from scraper.store_scraper import StoreScraper
 from embeddings_builder import HuggingFaceEmbeddingsBuilder
-from clusters_generator import get_clustered_reviews
+from clusters_generator import get_clustered_reviews, get_clustered_reviews_kmeans
 from chroma_manager import ChromaManager
 
 
 load_dotenv()
-STARTING_APP_URL = os.getenv("STARTING_APP_URL")
-STARTING1_APP_URL = os.getenv("STARTING1_APP_URL")
+APP_URLS = [
+    os.getenv("STARTING_APP_URL"),
+    os.getenv("STARTING1_APP_URL"),
+    os.getenv("STARTING2_APP_URL"),
+    os.getenv("STARTING3_APP_URL"),
+]
 embedder = HuggingFaceEmbeddingsBuilder()
 chroma_manager = ChromaManager()
 
@@ -24,24 +28,23 @@ async def scrape_reviews(scraper, urls, reviews_num):
     )
 
 async def main():
-    # Create scraper instance
-    scraper = StoreScraper(storage_manager=chroma_manager)
-    scraper1 = StoreScraper(storage_manager=chroma_manager)
+    # # Create scraper instance
+    # tasks = []
+    # scrapers_num = 4
+    # for i in range(scrapers_num):
+    #     scraper = StoreScraper(storage_manager=chroma_manager)
+    #     tasks.append(
+    #         scrape_reviews(scraper, [APP_URLS[i]], 10000),
+    #     )
     
-    # Run scraper 2 times concurrently
-    tasks = [
-        scrape_reviews(scraper, [STARTING_APP_URL], 10000),
-        scrape_reviews(scraper1, [STARTING1_APP_URL], 10000)
-    ]
-    
-    # Wait for both scraping tasks to complete
-    await asyncio.gather(*tasks)
+    # # Wait for both scraping tasks to complete
+    # await asyncio.gather(*tasks)
 
     # Get the reviews and the embeddings
     reviews, embs = chroma_manager.get_all_docs_embs()
 
     # Generate clusters
-    clusters = get_clustered_reviews(reviews, embs)
+    clusters = get_clustered_reviews_kmeans(reviews, embs)
 
     # Output report
     print(json.dumps(clusters, indent=4, ensure_ascii=False))

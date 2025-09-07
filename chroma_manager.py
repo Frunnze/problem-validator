@@ -53,6 +53,13 @@ class ChromaManager:
             print(f"Error counting reviews: {e}")
             return 0
 
+    def get_similar_reviews(self, text):
+        results = self.reviews_coll.query(
+            query_texts=[text],
+            n_results=100,
+            include=["documents"]
+        )
+        return results
 
 if __name__ == "__main__":
     chroma_manager = ChromaManager()
@@ -61,3 +68,8 @@ if __name__ == "__main__":
     # Count all reviews using the new function
     total_reviews = chroma_manager.count_all()
     print(f"Total number of reviews: {total_reviews}")
+    # reviews = chroma_manager.get_similar_reviews(
+    #     "complaints about apps that are difficult to use"
+    # )
+    # import json
+    # print(json.dumps(reviews, indent=4))
