@@ -1,5 +1,5 @@
 .env
 .DS_Store
 __pycache__
-scraper
 chroma_data
+store_scraper.py

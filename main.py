@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import asyncio
 
-from scraper.store_scraper import StoreScraper
+from store_scraper import StoreReviewsScraper
 from embeddings_builder import HuggingFaceEmbeddingsBuilder
 from clusters_generator import get_clustered_reviews, get_clustered_reviews_kmeans
 from chroma_manager import ChromaManager
