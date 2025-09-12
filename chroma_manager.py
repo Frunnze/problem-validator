@@ -1,7 +1,6 @@
 import chromadb
 from chromadb.utils import embedding_functions
 import uuid
-from copy import deepcopy
 
 
 class ChromaManager:
@@ -23,11 +22,14 @@ class ChromaManager:
 
         results = coll.query(
             query_texts=[text],
-            n_results=1,
-            include=["documents", "distances"]
+            n_results=1
         )
 
-        if results['distances'][0][0] == 0:
+        if (
+            results['documents'] and 
+            results['documents'][0] and 
+            results['documents'][0][0] == text
+        ):
             print(f"Document already exists ...")
             return False
         
@@ -52,41 +54,10 @@ class ChromaManager:
         metadatas = results.get('metadatas', [])
         return texts, embeddings, metadatas
 
-    # def count_all(self):
-    #     try:
-    #         results = self.reviews_coll.get()
-    #         return len(results.get('documents', []))
-    #     except Exception as e:
-    #         print(f"Error counting reviews: {e}")
-    #         return 0
-
-    # def get_similar_reviews(self, text):
-    #     results = self.reviews_coll.query(
-    #         query_texts=[text],
-    #         n_results=100,
-    #         include=["documents"]
-    #     )
-    #     return results
 
 if __name__ == "__main__":
-    from sklearn.cluster import DBSCAN
-
     chroma_manager = ChromaManager()
     texts, embeddings, metadatas = chroma_manager.get_all_docs_embs("apps")
-    print(len(metadatas))
-
-    db = DBSCAN(eps=0.2, min_samples=2, metric="cosine").fit(embeddings)
-    labels = db.labels_
-
-    clusters = {}
-    for label, meta in zip(labels, metadatas):
-        # if int(label) == -1:
-        #     continue
-        if int(label) not in clusters:
-            clusters[int(label)] = deepcopy(meta)
-        clusters[int(label)]["sum_rating"] = clusters[int(label)].get("sum_rating", 0) + meta["rating"]
-        clusters[int(label)]["sim_apps_num"] = clusters[int(label)].get("sim_apps_num", 0) + 1
-
-    clusters = sorted(list(clusters.values()), key=lambda x: x["sum_rating"]/x["sim_apps_num"])
-    import json
-    print(json.dumps(clusters, indent=4))
+    print(len(texts))
+    from clusters_generator import get_clustered_ranked_ideas
+    get_clustered_ranked_ideas(embeddings, metadatas)

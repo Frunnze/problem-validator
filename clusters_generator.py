@@ -1,6 +1,8 @@
 from sklearn.cluster import DBSCAN, KMeans
 import random
 from sklearn.metrics import silhouette_score
+from copy import deepcopy
+import json
 
 
 def get_report(reviews, labels):
@@ -62,3 +64,24 @@ def get_clustered_reviews_kmeans(reviews, embeddings):
     kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
     labels = kmeans.fit_predict(embeddings)
     return get_report(reviews, labels)
+
+
+def get_clustered_ranked_ideas(embeddings, metadatas):
+    db = DBSCAN(eps=0.3, min_samples=10, metric="cosine").fit(embeddings)
+    labels = db.labels_
+
+    clusters = {}
+    for label, meta in zip(labels, metadatas):
+        if int(label) == -1:
+            continue
+        if int(label) not in clusters:
+            clusters[int(label)] = deepcopy(meta)
+            clusters[int(label)]["name"] = []
+        if len(clusters[int(label)]["name"]) < 10:
+            clusters[int(label)]["name"].append(meta.get("name"))
+        clusters[int(label)]["sum_rating"] = clusters[int(label)].get("sum_rating", 0) + meta["rating"]
+        clusters[int(label)]["sim_apps_num"] = clusters[int(label)].get("sim_apps_num", 0) + 1
+        clusters[int(label)]["avg_rating"] = clusters[int(label)]["sum_rating"]/clusters[int(label)]["sim_apps_num"]
+
+    clusters = sorted(list(clusters.values()), key=lambda x: x["avg_rating"])
+    print(json.dumps(clusters, indent=4))
